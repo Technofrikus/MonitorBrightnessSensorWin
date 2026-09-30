@@ -17,7 +17,8 @@ public static class DdcMonitors
         percent = Math.Clamp(percent, 0, 100);
         int ok = 0;
 
-        foreach (var handle in EnumeratePhysicalMonitors(out var all))
+        var handles = EnumeratePhysicalMonitors(out var all);
+        foreach (var handle in handles)
         {
             if (!GetVCPFeatureAndVCPFeatureReply(handle, VcpBrightness, out _, out _, out var max) || max == 0)
                 continue;
@@ -34,7 +35,8 @@ public static class DdcMonitors
     public static int? GetBrightnessPercent()
     {
         int? result = null;
-        foreach (var handle in EnumeratePhysicalMonitors(out var all))
+        var handles = EnumeratePhysicalMonitors(out var all);
+        foreach (var handle in handles)
         {
             if (GetVCPFeatureAndVCPFeatureReply(handle, VcpBrightness, out _, out var cur, out var max) && max > 0)
             {
@@ -46,7 +48,7 @@ public static class DdcMonitors
         return result;
     }
 
-    static IEnumerable<IntPtr> EnumeratePhysicalMonitors(out PHYSICAL_MONITOR[] all)
+    static IntPtr[] EnumeratePhysicalMonitors(out PHYSICAL_MONITOR[] all)
     {
         var list = new List<PHYSICAL_MONITOR>();
         EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (IntPtr hMonitor, IntPtr _, IntPtr _, IntPtr _) =>
@@ -61,7 +63,7 @@ public static class DdcMonitors
         }, IntPtr.Zero);
 
         all = list.ToArray();
-        return all.Select(m => m.hPhysicalMonitor);
+        return all.Select(m => m.hPhysicalMonitor).ToArray();
     }
 
     delegate bool MonitorEnumProc(IntPtr hMonitor, IntPtr hdc, IntPtr lprc, IntPtr data);
