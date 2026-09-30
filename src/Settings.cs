@@ -9,8 +9,11 @@ public sealed class Settings
 
     public bool Enabled { get; set; } = true;
 
-    /// <summary>Monitor brightness (%) in complete darkness.</summary>
-    public int MinBrightness { get; set; } = 10;
+    /// <summary>Monitor brightness (%) at or below <see cref="LuxForMin"/>.</summary>
+    public int MinBrightness { get; set; } = 0;
+
+    /// <summary>Lux value at or below which the minimum brightness is used (rooms are never completely dark).</summary>
+    public int LuxForMin { get; set; } = 20;
 
     /// <summary>Monitor brightness (%) at or above <see cref="LuxForMax"/>.</summary>
     public int MaxBrightness { get; set; } = 100;

@@ -83,9 +83,10 @@ public sealed class BrightnessController : IDisposable
     {
         int min = Math.Clamp(_s.MinBrightness, 0, 100);
         int max = Math.Clamp(_s.MaxBrightness, min, 100);
-        double luxMax = Math.Max(2, _s.LuxForMax);
+        double luxMin = Math.Max(0, _s.LuxForMin);
+        double luxMax = Math.Max(luxMin + 1, _s.LuxForMax);
         double gamma = Math.Clamp(_s.Gamma, 0.2, 1.0);
-        double t = Math.Pow(Math.Clamp(lux / luxMax, 0, 1), gamma);
+        double t = Math.Pow(Math.Clamp((lux - luxMin) / (luxMax - luxMin), 0, 1), gamma);
         return (int)Math.Round(min + (max - min) * t);
     }
 

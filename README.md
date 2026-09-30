@@ -8,7 +8,7 @@ ausliest und die Helligkeit externer Monitore per DDC/CI anpasst – auch bei zu
 - Sensor: `http://lunarsensor.local/events` (Server-Sent Events, Lux-Werte), Host/IP einstellbar.
 - Monitor: Windows Monitor Configuration API (`dxva2.dll`, VCP-Code `0x10`) – kein eigenes DDC-Protokoll.
   Alle DDC-fähigen Monitore werden gesteuert, das interne Laptop-Display wird automatisch übersprungen.
-- Kurve: `t = (lux / LuxForMax)^Gamma` von *Min* (Dunkelheit) bis *Max* (ab „Lux für Maximum“); Gamma 1 = linear,
+- Kurve: `t = ((lux − LuxForMin) / (LuxForMax − LuxForMin))^Gamma` von *Min* (bis „Lux für Minimum“, Standard 20) bis *Max* (ab „Lux für Maximum“); Gamma 1 = linear,
   Standard 0,5. Dazu Glättung, Hysterese und eine Mindestpause zwischen Schreibvorgängen (Standard 10 s),
   damit der Monitor-Speicher geschont wird.
 - Einstellungen: `%AppData%\MonitorBrightnessSensor\settings.json` bzw. Dialog im Tray-Menü.
