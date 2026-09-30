@@ -4,7 +4,7 @@ public sealed record Status(string Text, double? Lux, int? Brightness);
 
 /// <summary>
 /// Turns sensor lux values into monitor brightness: logarithmic curve, smoothing,
-/// hysteresis and stepwise transitions so DDC writes stay rare and the change is not jarring.
+/// a gamma curve, strong smoothing, hysteresis and a minimum write interval so DDC writes stay rare.
 /// </summary>
 public sealed class BrightnessController : IDisposable
 {
@@ -50,7 +50,7 @@ public sealed class BrightnessController : IDisposable
         if (_sensor.LastUpdateUtc != _lastSample)
         {
             _lastSample = _sensor.LastUpdateUtc;
-            _smoothedLux = _smoothedLux is double prev ? prev + 0.3 * (raw - prev) : raw;
+            _smoothedLux = _smoothedLux is double prev ? prev + 0.15 * (raw - prev) : raw;
         }
         var lux = _smoothedLux!.Value;
 
@@ -67,12 +67,11 @@ public sealed class BrightnessController : IDisposable
         bool needed = first || Math.Abs(diff) >= Math.Max(1, _s.Hysteresis) || atEdge;
 
         string text = "OK";
-        if (needed && (DateTime.UtcNow - _lastAttempt) >= TimeSpan.FromSeconds(1.5))
+        if (needed && (DateTime.UtcNow - _lastAttempt) >= TimeSpan.FromSeconds(Math.Max(1, _s.MinWriteIntervalSeconds)))
         {
             _lastAttempt = DateTime.UtcNow;
-            int next = first ? target : _current + Math.Clamp(diff, -Math.Max(1, _s.MaxStep), Math.Max(1, _s.MaxStep));
-            if (DdcMonitors.SetBrightnessPercent(next) > 0)
-                _current = next;
+            if (DdcMonitors.SetBrightnessPercent(target) > 0)
+                _current = target;
             else
                 text = "Kein DDC-Monitor gefunden";
         }
@@ -85,7 +84,8 @@ public sealed class BrightnessController : IDisposable
         int min = Math.Clamp(_s.MinBrightness, 0, 100);
         int max = Math.Clamp(_s.MaxBrightness, min, 100);
         double luxMax = Math.Max(2, _s.LuxForMax);
-        double t = Math.Clamp(Math.Log10(Math.Max(0, lux) + 1) / Math.Log10(luxMax + 1), 0, 1);
+        double gamma = Math.Clamp(_s.Gamma, 0.2, 1.0);
+        double t = Math.Pow(Math.Clamp(lux / luxMax, 0, 1), gamma);
         return (int)Math.Round(min + (max - min) * t);
     }
 

@@ -21,8 +21,11 @@ public sealed class Settings
     /// <summary>Minimum brightness change (%) before the monitor is touched. Protects the monitor's EEPROM.</summary>
     public int Hysteresis { get; set; } = 3;
 
-    /// <summary>Maximum brightness change (%) per step, so the transition is smooth.</summary>
-    public int MaxStep { get; set; } = 5;
+    /// <summary>Curve shape: 1.0 = linear, smaller = brighter already at low light (0.2 - 1.0).</summary>
+    public double Gamma { get; set; } = 0.5;
+
+    /// <summary>Minimum pause (s) between two brightness writes to the monitor.</summary>
+    public int MinWriteIntervalSeconds { get; set; } = 10;
 
     static string Dir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MonitorBrightnessSensor");
     static string FilePath => Path.Combine(Dir, "settings.json");
