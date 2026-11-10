@@ -1,34 +1,34 @@
 # MonitorBrightnessSensorWin
 
-Kleine Windows-Tray-App, die den [Lunar-Helligkeitssensor](https://lunar.fyi/sensor) (ESP32 + TSL2591, ESPHome)
-ausliest und die Helligkeit externer Monitore per DDC/CI anpasst – auch bei zugeklapptem Laptop.
+A small Windows tray app that reads the [Lunar ambient light sensor](https://lunar.fyi/sensor) (ESP32 + TSL2591, ESPHome)
+and adjusts the brightness of external monitors via DDC/CI, even with the laptop lid closed.
 
-## Funktionsweise
+## How it works
 
-- Sensor: `http://lunarsensor.local/events` (Server-Sent Events, Lux-Werte; Event-ID `sensor/Ambient Light` bzw. älter `sensor-ambient_light`), Host/IP einstellbar.
-- Monitor: Windows Monitor Configuration API (`dxva2.dll`, VCP-Code `0x10`) – kein eigenes DDC-Protokoll.
-  Alle DDC-fähigen Monitore werden gesteuert, das interne Laptop-Display wird automatisch übersprungen.
-- Kurve: `t = ((lux − LuxForMin) / (LuxForMax − LuxForMin))^Gamma` von *Min* (bis „Lux für Minimum“, Standard 20) bis *Max* (ab „Lux für Maximum“); Gamma 1 = linear,
-  Standard 0,5. Dazu Glättung, Hysterese und eine Mindestpause zwischen Schreibvorgängen (Standard 10 s),
-  damit der Monitor-Speicher geschont wird.
-- Einstellungen: `%AppData%\MonitorBrightnessSensor\settings.json` bzw. Dialog im Tray-Menü.
+- Sensor: `http://lunarsensor.local/events` (Server-Sent Events, lux values; event id `sensor/Ambient Light`, or `sensor-ambient_light` on older firmware). Host/IP is configurable.
+- Monitors: Windows Monitor Configuration API (`dxva2.dll`, VCP code `0x10`), no custom DDC protocol.
+  All DDC-capable monitors are controlled; the built-in laptop display is skipped automatically.
+- Curve: `t = ((lux − LuxForMin) / (LuxForMax − LuxForMin))^Gamma`, from *Min* (up to "Lux for minimum", default 20) to *Max* (from "Lux for maximum" upwards); gamma 1 = linear,
+  default 0.5. In addition there is smoothing, hysteresis and a minimum pause between writes (default 10 s)
+  to protect the monitor's memory.
+- Settings: `%AppData%\MonitorBrightnessSensor\settings.json`, or the dialog in the tray menu.
 
-## Bauen
+## Building
 
-Ohne lokale Entwicklungsumgebung: GitHub Actions baut bei jedem Push eine self-contained `MonitorBrightnessSensor.exe`
-(Actions → letzter Lauf → Artifact). Bei einem Tag `v*` wird sie zusätzlich an ein Release gehängt:
+Without a local development environment: GitHub Actions builds a self-contained `MonitorBrightnessSensor.exe` on every push
+(Actions → latest run → artifact). Pushing a `v*` tag additionally attaches it to a release:
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0
 ```
 
-Lokal (Mac/Windows/Linux mit .NET 8 SDK):
+Locally (Mac/Windows/Linux with the .NET 8 SDK):
 
 ```bash
 dotnet publish src/MonitorBrightnessSensor.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-## Hinweise
+## Notes
 
-- Die exe ist unsigniert; SmartScreen/Defender können warnen.
-- Firmen-VPNs blockieren teils `.local`-Auflösung oder das lokale Netz – dann dem Sensor eine feste IP geben.
+- The exe is unsigned; SmartScreen/Defender may warn.
+- Corporate VPNs sometimes block `.local` name resolution or access to the local network. In that case, give the sensor a fixed IP address.
