@@ -6,7 +6,7 @@ sealed class SettingsForm : Form
 
     public SettingsForm(Settings s)
     {
-        Text = "Einstellungen";
+        Text = Strings.SettingsTitle;
         MinimumSize = new Size(360, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = MinimizeBox = false;
@@ -27,24 +27,16 @@ sealed class SettingsForm : Form
         var gamma = new NumericUpDown { Minimum = 0.2m, Maximum = 1.0m, DecimalPlaces = 2, Increment = 0.05m, Value = (decimal)Math.Clamp(s.Gamma, 0.2, 1.0), Width = 80 };
         var interval = Num(s.MinWriteIntervalSeconds, 1, 600);
 
-        Row(table, "Sensor (Host/IP)", host,
-            "Adresse des Lunar-Lichtsensors im WLAN, z. B. lunarsensor.local oder eine feste IP (192.168.x.x).\nBei VPN-Problemen mit .local besser die IP eintragen.");
-        Row(table, "Min. Helligkeit (%)", min,
-            "Helligkeit des Monitors bei \"Lux für Minimum\" oder weniger.\nNiedrigster Wert, den die Automatik setzt.");
-        Row(table, "Max. Helligkeit (%)", max,
-            "Höchste Helligkeit, die die Automatik setzt.\nWird erreicht, sobald der Sensor \"Lux für Maximum\" oder mehr misst.");
-        Row(table, "Lux für Minimum", luxMin,
-            "Umgebungshelligkeit in Lux, bei der (und darunter) die minimale Helligkeit gesetzt wird.\nEin Raum ist nie völlig dunkel, daher z. B. 20 Lux, damit der Monitor im dunklen Zimmer wirklich auf Minimum geht.");
-        Row(table, "Lux für Maximum", luxMax,
-            "Umgebungshelligkeit in Lux, ab der der Monitor die maximale Helligkeit erreicht.\nRichtwerte: Wohnzimmer abends ca. 50–150, Büro ca. 300–500, helles Fenster ca. 1000+.");
-        Row(table, "Hysterese (%)", hyst,
-            "Die Helligkeit wird nur geändert, wenn der neue Zielwert mindestens so viele Prozentpunkte vom aktuellen abweicht.\nGrößere Werte bedeuten weniger Unruhe und weniger Schreibvorgänge am Monitor.");
-        Row(table, "Kurve (1 = linear, kleiner = heller)", gamma,
-            "Form der Kurve zwischen Lux und Helligkeit: Helligkeit = ((Lux − Lux für Min.) / (Lux für Max. − Lux für Min.)) ^ Kurve.\n1,0 = linear. Kleinere Werte (z. B. 0,5) machen den Monitor schon bei wenig Licht deutlich heller,\nwährend hohe Lux-Werte kaum noch etwas ändern.");
-        Row(table, "Min. Pause zw. Änderungen (s)", interval,
-            "Mindestabstand in Sekunden zwischen zwei Helligkeitsänderungen am Monitor.\nGrößere Werte schonen den Speicher des Monitors, die Reaktion auf Lichtwechsel wird dadurch träger.");
+        Row(table, Strings.SensorLabel, host, Strings.SensorTip);
+        Row(table, Strings.MinBrightnessLabel, min, Strings.MinBrightnessTip);
+        Row(table, Strings.MaxBrightnessLabel, max, Strings.MaxBrightnessTip);
+        Row(table, Strings.LuxMinLabel, luxMin, Strings.LuxMinTip);
+        Row(table, Strings.LuxMaxLabel, luxMax, Strings.LuxMaxTip);
+        Row(table, Strings.HysteresisLabel, hyst, Strings.HysteresisTip);
+        Row(table, Strings.GammaLabel, gamma, Strings.GammaTip);
+        Row(table, Strings.IntervalLabel, interval, Strings.IntervalTip);
 
-        var ok = new Button { Text = "Speichern", DialogResult = DialogResult.OK, AutoSize = true };
+        var ok = new Button { Text = Strings.Save, DialogResult = DialogResult.OK, AutoSize = true };
         ok.Click += (_, _) =>
         {
             s.SensorHost = host.Text.Trim();

@@ -11,6 +11,7 @@ and adjusts the brightness of external monitors via DDC/CI, even with the laptop
 - Curve: `t = ((lux − LuxForMin) / (LuxForMax − LuxForMin))^Gamma`, from *Min* (up to "Lux for minimum", default 20) to *Max* (from "Lux for maximum" upwards); gamma 1 = linear,
   default 0.5. In addition there is smoothing, hysteresis and a minimum pause between writes (default 10 s)
   to protect the monitor's memory.
+- Language: the UI is English, or German if the Windows display language is German (texts live in `src/Strings.cs`).
 - Settings: `%AppData%\MonitorBrightnessSensor\settings.json`, or the dialog in the tray menu.
 
 ## Building

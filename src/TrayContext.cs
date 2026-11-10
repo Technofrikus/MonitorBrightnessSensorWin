@@ -9,8 +9,8 @@ sealed class TrayContext : ApplicationContext
     readonly NotifyIcon _tray;
     readonly Control _ui = new();
     readonly ToolStripMenuItem _statusItem = new() { Enabled = false };
-    readonly ToolStripMenuItem _enabledItem = new("Automatik aktiv") { CheckOnClick = true };
-    readonly ToolStripMenuItem _autostartItem = new("Mit Windows starten") { CheckOnClick = true };
+    readonly ToolStripMenuItem _enabledItem = new(Strings.AutoEnabled) { CheckOnClick = true };
+    readonly ToolStripMenuItem _autostartItem = new(Strings.StartWithWindows) { CheckOnClick = true };
 
     public TrayContext()
     {
@@ -26,10 +26,10 @@ sealed class TrayContext : ApplicationContext
         menu.Items.Add(_statusItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(_enabledItem);
-        menu.Items.Add("Einstellungen …", null, (_, _) => ShowSettings());
+        menu.Items.Add(Strings.SettingsMenu, null, (_, _) => ShowSettings());
         menu.Items.Add(_autostartItem);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Beenden", null, (_, _) => ExitThread());
+        menu.Items.Add(Strings.Exit, null, (_, _) => ExitThread());
 
         _tray = new NotifyIcon
         {

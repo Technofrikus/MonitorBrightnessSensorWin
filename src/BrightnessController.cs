@@ -31,7 +31,7 @@ public sealed class BrightnessController : IDisposable
         while (!_cts.IsCancellationRequested)
         {
             try { Tick(); }
-            catch (Exception ex) { StatusChanged?.Invoke(new Status("Fehler: " + ex.Message, _smoothedLux, null)); }
+            catch (Exception ex) { StatusChanged?.Invoke(new Status(Strings.StatusError(ex.Message), _smoothedLux, null)); }
 
             try { await Task.Delay(1000, _cts.Token); }
             catch (OperationCanceledException) { return; }
@@ -43,7 +43,7 @@ public sealed class BrightnessController : IDisposable
         if (_sensor.Lux is not double raw || (DateTime.UtcNow - _sensor.LastUpdateUtc) > TimeSpan.FromSeconds(60))
         {
             StatusChanged?.Invoke(new Status(
-                _sensor.Error is { } e ? $"Sensor nicht erreichbar ({e})" : "Warte auf Sensor …", _smoothedLux, _current < 0 ? null : _current));
+                _sensor.Error is { } e ? Strings.SensorUnreachable(e) : Strings.WaitingForSensor, _smoothedLux, _current < 0 ? null : _current));
             return;
         }
 
@@ -56,7 +56,7 @@ public sealed class BrightnessController : IDisposable
 
         if (!_s.Enabled)
         {
-            StatusChanged?.Invoke(new Status("Pausiert", lux, _current < 0 ? null : _current));
+            StatusChanged?.Invoke(new Status(Strings.Paused, lux, _current < 0 ? null : _current));
             return;
         }
 
@@ -73,7 +73,7 @@ public sealed class BrightnessController : IDisposable
             if (DdcMonitors.SetBrightnessPercent(target) > 0)
                 _current = target;
             else
-                text = "Kein DDC-Monitor gefunden";
+                text = Strings.NoDdcMonitor;
         }
 
         StatusChanged?.Invoke(new Status(text, lux, _current < 0 ? null : _current));
