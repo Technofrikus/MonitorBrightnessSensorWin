@@ -74,9 +74,11 @@ public sealed class SensorClient : IDisposable
             var root = doc.RootElement;
             if (root.ValueKind != JsonValueKind.Object) return;
             if (!root.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.String) return;
-            // "sensor-ambient_light" (and "sensor-ambient_light_tsl2591" in older firmware);
-            // not the infrared / full spectrum channels.
-            if (!id.GetString()!.StartsWith("sensor-ambient_light", StringComparison.Ordinal)) return;
+            // Newer ESPHome: "sensor/Ambient Light"; older: "sensor-ambient_light" (or
+            // "sensor-ambient_light_tsl2591"). Normalise separators/case so all match,
+            // but not the infrared / full spectrum channels.
+            var norm = id.GetString()!.ToLowerInvariant().Replace('/', '-').Replace(' ', '_');
+            if (!norm.StartsWith("sensor-ambient_light", StringComparison.Ordinal)) return;
             if (!root.TryGetProperty("value", out var value) || value.ValueKind != JsonValueKind.Number) return;
 
             Lux = value.GetDouble();
